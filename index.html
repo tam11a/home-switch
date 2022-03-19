@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Home Switch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/web-socket-js/1.0.0/web_socket.min.js"
+      integrity="sha512-jtr9/t8rtBf1Sv832XjG1kAtUECQCqFnTAJWccL8CSC82VGzkPPih8rjtOfiiRKgqLXpLA1H/uQ/nq2bkHGWTQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <main style="display: flex; flex-direction: column; row-gap: 10px">
+      <input class="l red" type="checkbox" onclick="press(this, 19)" />
+      <input class="l yellow" type="checkbox" onclick="press(this, 5)" />
+      <input class="l green" type="checkbox" onclick="press(this, 22)" />
+    </main>
+    <script>
+      let socket = new WebSocket("wss://websocket-any.herokuapp.com");
+
+      socket.onmessage = (message) => {
+        console.log(message.data);
+      };
+
+      const handleEvent = (event) => {
+        let data = {};
+        const FormDataHere = new FormData(event.target);
+        Array.from(FormDataHere.entries()).forEach((e) => {
+          data[e[0]] = e[0].includes("[]")
+            ? FormDataHere.getAll(e[0])
+            : FormDataHere.get(e[0]);
+        });
+        return data;
+      };
+
+      const handleSubmit = (event) => {
+        event.preventDefault();
+        return handleEvent(event);
+      };
+
+      const press = (event, device_id) => {
+        socket.send(
+          `{"device_id": ${device_id}, "switch": ${event.checked ? 1 : 0}}`
+        );
+        // event.checked = !event.checked;
+        console.log(event.checked);
+
+        // socket.send(handleSubmit(event)["msg"]);
+        // document.querySelector("input").value = "";
+      };
+    </script>
+  </body>
+</html>
