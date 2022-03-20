@@ -4,6 +4,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: "Roboto", sans-serif;
 }
 :root {
   /* minFontSize + (maxFontSize - minFontSize) * (100vw - minVWidth)/(maxVWidth - minVWidth) */
@@ -29,7 +30,7 @@ main {
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 0.75em;
   box-shadow: 0.125em 0.125em 0 0.125em rgba(0, 0, 0, 0.3) inset;
-  color: #fdea7b;
+  color: #7bb5fd;
   display: inline-flex;
   align-items: center;
   margin: auto;

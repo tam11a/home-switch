@@ -12,18 +12,77 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <main style="display: flex; flex-direction: column; row-gap: 10px">
+      <div style="font-size: 16px; margin-bottom: 30px">
+        Device: <span class="statusHere">Not Connected</span>
+      </div>
       <input class="l red" type="checkbox" onclick="press(this, 19)" />
       <input class="l yellow" type="checkbox" onclick="press(this, 5)" />
       <input class="l green" type="checkbox" onclick="press(this, 22)" />
+      <input class="l neu" type="checkbox" onclick="press(this, 23)" />
     </main>
     <script>
       let socket = new WebSocket("wss://websocket-any.herokuapp.com");
 
+      socket.onopen = () => {
+        socket.send(`{"status": "connection"}`);
+      };
+
       socket.onmessage = (message) => {
         console.log(message.data);
+        try {
+          const data = JSON.parse(message.data);
+          if (data.status === "getState") {
+            document.querySelector(".statusHere").innerHTML = "Connected";
+            document.querySelector(".l.yellow").checked = !!parseInt(
+              data.bulb5
+            );
+            document.querySelector(".l.red").checked = !!parseInt(data.bulb19);
+            document.querySelector(".l.green").checked = !!parseInt(
+              data.bulb22
+            );
+            document.querySelector(".l.neu").checked = !!parseInt(data.bulb23);
+          } else if (data.status === "confirmed") {
+            if (data.device_id === "5")
+              document.querySelector(".l.yellow").checked = !!parseInt(
+                data.switch
+              );
+            else if (data.device_id === "19")
+              document.querySelector(".l.red").checked = !!parseInt(
+                data.switch
+              );
+            else if (data.device_id === "22")
+              document.querySelector(".l.green").checked = !!parseInt(
+                data.switch
+              );
+            else if (data.device_id === "23")
+              document.querySelector(".l.neu").checked = !!parseInt(
+                data.switch
+              );
+          }
+        } catch {}
+      };
+
+      const toggleBulb = (id, val) => {
+        const device_id = parseInt(id);
+        // const val = !!parseInt(value);
+        document.querySelector(
+          device_id === 19
+            ? ".l.red"
+            : device_id === 5
+            ? ".l.yellow"
+            : device_id === 22
+            ? ".l.green"
+            : ".l"
+        ).checked = val;
       };
 
       const handleEvent = (event) => {
@@ -44,10 +103,12 @@
 
       const press = (event, device_id) => {
         socket.send(
-          `{"device_id": ${device_id}, "switch": ${event.checked ? 1 : 0}}`
+          `{"status": "update", "device_id": ${device_id}, "switch": ${
+            event.checked ? 1 : 0
+          }}`
         );
-        // event.checked = !event.checked;
-        console.log(event.checked);
+        event.checked = !event.checked;
+        // console.log(event.checked);
 
         // socket.send(handleSubmit(event)["msg"]);
         // document.querySelector("input").value = "";
