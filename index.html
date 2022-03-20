@@ -32,6 +32,10 @@
     <script>
       let socket = new WebSocket("wss://websocket-any.herokuapp.com");
 
+      socket.onclose = () => {
+        socket = new WebSocket("wss://websocket-any.herokuapp.com");
+      };
+
       socket.onopen = () => {
         socket.send(`{"status": "connection"}`);
       };
